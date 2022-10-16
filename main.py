@@ -6,15 +6,12 @@ from custom_parser import ContactsParser
 def merge_rows(contact_list):
     pos = 0
     column_names = contact_list[0]
-    TableRow = namedtuple('TableRow', column_names)
     while pos < len(contact_list) - 1:
         row_1 = contact_list[pos]
-        row_1 = TableRow(*row_1)
-        row_1 = row_1._asdict()
+        row_1 = {column_names[i]: row_1[i] for i in range(len(column_names))}
 
         row_2 = contact_list[pos+1]
-        row_2 = TableRow(*row_2)
-        row_2 = row_2._asdict()
+        row_2 = {column_names[i]: row_2[i] for i in range(len(column_names))}
 
         merge_possible = 0
         if row_1['lastname'] == row_2['lastname'] and row_1['firstname'] == row_2['firstname']:
