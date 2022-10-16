@@ -4,9 +4,35 @@ from custom_parser import ContactsParser
 
 
 def merge_rows(contact_list):
-    pos = 1
+    pos = 0
+    column_names = contact_list[0]
+    TableRow = namedtuple('TableRow', column_names)
     while pos < len(contact_list) - 1:
-        pass
+        row_1 = contact_list[pos]
+        row_1 = TableRow(*row_1)
+        row_1 = row_1._asdict()
+
+        row_2 = contact_list[pos+1]
+        row_2 = TableRow(*row_2)
+        row_2 = row_2._asdict()
+
+        merge_possible = 0
+        if row_1['lastname'] == row_2['lastname'] and row_1['firstname'] == row_2['firstname']:
+            merge_possible = 1
+            for col in column_names[2:]:
+                if row_1[col] == row_2[col] or (row_1[col] and not row_2[col]):
+                    merge_possible *= 1
+                elif row_2[col] and not row_1[col]:
+                    merge_possible *= 1
+                    row_1[col] = row_2[col]
+                    contact_list[pos] = list(row_1.values())
+                else:
+                    merge_possible *= 0
+        if merge_possible:
+            del contact_list[pos+1]
+        else:
+            pos += 1
+    return contact_list
 
 
 def main():
@@ -23,7 +49,7 @@ def main():
         if ind == 0:
             contact_list.append(row_raw)
             continue
-        row_raw = row_raw[:7]
+        row_raw = row_raw[:len(column_names)]
         new_table_row = TableRow(*row_raw)
         row = dict.fromkeys(column_names, '')
         for col in column_names:
@@ -46,9 +72,14 @@ def main():
     for row_clean in contact_list:
         print(row_clean)
 
+    print('*' * 50)
+    merged_contact_list = merge_rows(contact_list)
+    for row in merged_contact_list:
+        print(row)
+
     with open('phonebook.csv', 'w') as f:
         data_writer = csv.writer(f, delimiter=',')
-        data_writer.writerows(contact_list)
+        data_writer.writerows(merged_contact_list)
 
 
 if __name__ == '__main__':
