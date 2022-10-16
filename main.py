@@ -16,25 +16,31 @@ def main():
 
     contact_list = []
     parser = ContactsParser()
+    column_names = contact_list_raw[0]
+    TableRow = namedtuple('TableRow', column_names)
     for ind, row_raw in enumerate(contact_list_raw):
         print(row_raw)
         if ind == 0:
             contact_list.append(row_raw)
             continue
-        row = []
-        for col_nr in range(len(row_raw)):
-            if col_nr == 0:
-                name_for_parsing = ' '.join(row_raw[:3])
+        row_raw = row_raw[:7]
+        new_table_row = TableRow(*row_raw)
+        row = dict.fromkeys(column_names, '')
+        for col in column_names:
+            if col == 'lastname':
+                name_for_parsing = new_table_row.lastname + ' ' + new_table_row.firstname + ' ' + new_table_row.surname
                 parsed_name = parser.get_parsed_name(name_for_parsing)
-                row[:3] = parsed_name.values()
-            elif 3 <= col_nr <= 4 or col_nr == 6:
-                row.append(row_raw[col_nr])
-            elif col_nr == 5:
-                phone_for_parsing = row_raw[col_nr]
+                row['lastname'] = parsed_name['lastname']
+                row['firstname'] = parsed_name['firstname']
+                row['surname'] = parsed_name['surname']
+            elif col in ['organization', 'position', 'email']:
+                row[col] = getattr(new_table_row, col)
+            elif col == 'phone':
+                phone_for_parsing = new_table_row.phone
                 parsed_phone = parser.get_substituted_phone(phone_for_parsing)
-                row.append(parsed_phone['phone'])
+                row['phone'] = parsed_phone['phone']
 
-        contact_list.append(row)
+        contact_list.append(list(row.values()))
 
     print('*' * 50)
     for row_clean in contact_list:
