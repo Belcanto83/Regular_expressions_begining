@@ -18,7 +18,7 @@ class ContactsParser:
         substituted_phone = ''
         parsed_phone = self._parse_phone(phone)
         if parsed_phone is not None:
-            substituted_phone = f'+7({parsed_phone.group(2)}){parsed_phone.group(3)}-{parsed_phone.group(5)}' \
+            substituted_phone = f'+7({parsed_phone.group(2)}){parsed_phone.group(3)}-{parsed_phone.group(4)}' \
                                 f'-{parsed_phone.group(5)}'
             if parsed_phone.group(7) is not None:
                 substituted_phone += f' доб.{parsed_phone.group(7)}'

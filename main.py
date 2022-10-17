@@ -5,13 +5,15 @@ import contextlib
 
 
 def merge_rows(data_list):
-    pos = 0
+    pos_1 = 1
+    pos_2 = pos_1 + 1
     table_columns = data_list[0]
-    while pos < len(data_list) - 1:
-        row_1 = data_list[pos]
+
+    while pos_1 < len(data_list) - 1:
+        row_1 = data_list[pos_1]
         row_1 = {table_columns[i]: row_1[i] for i in range(len(table_columns))}
 
-        row_2 = data_list[pos + 1]
+        row_2 = data_list[pos_2]
         row_2 = {table_columns[i]: row_2[i] for i in range(len(table_columns))}
 
         merge_possible = 0
@@ -23,13 +25,19 @@ def merge_rows(data_list):
                 elif row_2[column] and not row_1[column]:
                     merge_possible *= 1
                     row_1[column] = row_2[column]
-                    data_list[pos] = list(row_1.values())
+                    data_list[pos_1] = list(row_1.values())
                 else:
                     merge_possible *= 0
+
         if merge_possible:
-            del data_list[pos + 1]
+            del data_list[pos_2]
         else:
-            pos += 1
+            if pos_2 == len(data_list) - 1:
+                pos_1 += 1
+                pos_2 = pos_1 + 1
+            else:
+                pos_2 += 1
+
     return data_list
 
 
