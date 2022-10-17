@@ -34,7 +34,7 @@ def merge_rows(data_list):
 
 
 @contextlib.contextmanager
-def repair_contact_list(file_for_repair, repaired_file, encoding='UTF-8'):
+def repair_contact_list(file_for_repair, encoding='UTF-8'):
     with open(file_for_repair, encoding=encoding) as f:
         rows = csv.reader(f, delimiter=',')
         rows = list(rows)
@@ -42,20 +42,15 @@ def repair_contact_list(file_for_repair, repaired_file, encoding='UTF-8'):
         yield rows
     except RuntimeError as err:
         print('Error: ', err)
-    finally:
-        with open(repaired_file, 'w') as f:
-            data_writer = csv.writer(f, delimiter=',')
-            data_writer.writerows(rows)
 
 
-if __name__ == '__main__':
-    with repair_contact_list('phonebook_raw.csv', 'phonebook.csv') as rows_for_processing:
+def main():
+    with repair_contact_list('phonebook_raw.csv') as rows_for_processing:
         contact_list = []
         parser = ContactsParser()
-        contact_list_raw = rows_for_processing
-        column_names = contact_list_raw[0]
+        column_names = rows_for_processing[0]
         TableRow = namedtuple('TableRow', column_names)
-        for ind, row_raw in enumerate(contact_list_raw):
+        for ind, row_raw in enumerate(rows_for_processing):
             print(row_raw)
             if ind == 0:
                 contact_list.append(row_raw)
@@ -88,4 +83,11 @@ if __name__ == '__main__':
         merged_contact_list = merge_rows(contact_list)
         for row in merged_contact_list:
             print(row)
-        rows_for_processing = merged_contact_list
+
+        with open('phonebook.csv', 'w') as f:
+            data_writer = csv.writer(f, delimiter=',')
+            data_writer.writerows(merged_contact_list)
+
+
+if __name__ == '__main__':
+    main()
